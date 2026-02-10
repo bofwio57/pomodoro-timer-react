@@ -7,9 +7,13 @@ import StatsView from "./components/Dashboard/StatsView";
 import SettingsView from "./components/Settings/SettingsView";
 
 const App = () => {
-    const [activeTab, setActiveTab] = useState("timer");
+    //timer / stats / settings
+    const [activeTab, setActiveTab] = useState("timer"); //탭>초기:timer
+
+    //다크모드
     const [isDarkMode, setIsDarkMode] = useState(true);
 
+    //다크모드 시
     useEffect(() => {
         if (isDarkMode) {
             document.documentElement.classList.add("dark");
