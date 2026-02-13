@@ -1,8 +1,9 @@
 import React, { createContext, useContext, useState, useEffect, useRef, useCallback } from "react";
 
+// 타이머 Context 생성
 const TimerContext = createContext(undefined);
 
-//객체
+//기본 설정 객체
 const DEFAULT_SETTINGS = {
     focusTime: 25 * 60,
     shortBreakTime: 5 * 60,
@@ -15,7 +16,7 @@ const DEFAULT_SETTINGS = {
 };
 
 export const TimerProvider = ({ children }) => {
-    const [settings, setSettings] = useState(DEFAULT_SETTINGS);
+    const [settings, setSettings] = useState(DEFAULT_SETTINGS); // 사용자 설정
     const [mode, setMode] = useState("focus"); // 현재 모드 (focus / break)
     const [timeLeft, setTimeLeft] = useState(settings.focusTime); // 남은 시간 (초)
     const [isActive, setIsActive] = useState(false); // 타이머 실행 중인지
@@ -42,10 +43,12 @@ export const TimerProvider = ({ children }) => {
         [settings],
     );
 
+    // 모드 변경 시 타이머 초기화
     useEffect(() => {
-        setTimeLeft(getModeTime(mode));
+        setTimeLeft(getModeTime(mode)); //남은 시간을 변경한다
     }, [mode, getModeTime]);
 
+    // 사운드 재생
     const playSound = (type) => {
         if (!settings.soundEnabled) return;
         const audio = new Audio(
@@ -56,23 +59,12 @@ export const TimerProvider = ({ children }) => {
         audio.play().catch((e) => console.log("Audio play failed", e));
     };
 
-    const notify = (title, body) => {
-        if (!settings.notificationsEnabled) return;
-        if (Notification.permission === "granted") {
-            new Notification(title, { body });
-        } else if (Notification.permission !== "denied") {
-            Notification.requestPermission().then((permission) => {
-                if (permission === "granted") {
-                    new Notification(title, { body });
-                }
-            });
-        }
-    };
-
+    // 세션 완료 처리
     const completeSession = useCallback(() => {
         setIsActive(false);
         playSound("end");
 
+        // 기록 저장
         const session = {
             id: Date.now().toString(),
             type: mode,
@@ -85,15 +77,14 @@ export const TimerProvider = ({ children }) => {
         if (mode === "focus") {
             const nextCount = sessionsCompleted + 1;
             setSessionsCompleted(nextCount);
-            notify("Focus Complete!", "Time for a break.");
 
+            //휴식 시간 판단
             if (nextCount % settings.longBreakInterval === 0) {
                 setMode("long_break");
             } else {
                 setMode("short_break");
             }
         } else {
-            notify("Break Over!", "Ready to focus?");
             setMode("focus");
         }
     }, [mode, sessionsCompleted, settings, getModeTime]);
@@ -101,6 +92,7 @@ export const TimerProvider = ({ children }) => {
     // 타이머 루프
     useEffect(() => {
         if (isActive && timeLeft > 0) {
+            //타이머가 실행중이고 남은시간이 있는경우
             timerRef.current = window.setInterval(() => {
                 setTimeLeft((prev) => prev - 1);
             }, 1000);
@@ -114,7 +106,7 @@ export const TimerProvider = ({ children }) => {
     }, [isActive, timeLeft, completeSession]);
 
     const startTimer = () => {
-        setIsActive(true);
+        setIsActive(true); //타이머 실행 중으로 상태 변경
         playSound("start");
     };
 
@@ -154,6 +146,7 @@ export const TimerProvider = ({ children }) => {
     );
 };
 
+// Context 사용용 커스텀 훅
 export const useTimer = () => {
     const context = useContext(TimerContext);
     if (!context) throw new Error("useTimer must be used within a TimerProvider");

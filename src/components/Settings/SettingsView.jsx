@@ -1,9 +1,11 @@
 import React from "react";
 import { Bell, Volume2, Clock, Target, VolumeX } from "lucide-react";
 import { useTimer } from "../../contexts/TimerContext";
+import { useAuth } from "../../contexts/AuthContext";
 
 const SettingsView = () => {
     const { settings, setSettings, dailyGoal, setDailyGoal } = useTimer();
+    const { user } = useAuth();
 
     const updateSetting = (key, value) => {
         setSettings({ ...settings, [key]: value });
@@ -61,33 +63,35 @@ const SettingsView = () => {
             </section>
 
             {/* Daily Goal */}
-            <section className="space-y-6">
-                <div className="flex items-center gap-3 text-gray-300">
-                    <Target size={20} />
-                    <h2 className="font-semibold text-lg">Daily Goals</h2>
-                </div>
-                <div className="bg-white/5 border border-white/10 p-6 rounded-2xl flex items-center justify-between">
-                    <div>
-                        <h3 className="font-medium">Target Pomodoros</h3>
-                        <p className="text-sm text-gray-500">How many focus sessions per day?</p>
+            {user && (
+                <section className="space-y-6">
+                    <div className="flex items-center gap-3 text-gray-300">
+                        <Target size={20} />
+                        <h2 className="font-semibold text-lg">Daily Goals</h2>
                     </div>
-                    <div className="flex items-center gap-4">
-                        <button
-                            onClick={() => setDailyGoal(Math.max(1, dailyGoal - 1))}
-                            className="w-10 h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 transition-colors"
-                        >
-                            -
-                        </button>
-                        <span className="text-2xl font-bold font-mono w-10 text-center">{dailyGoal}</span>
-                        <button
-                            onClick={() => setDailyGoal(dailyGoal + 1)}
-                            className="w-10 h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 transition-colors"
-                        >
-                            +
-                        </button>
+                    <div className="bg-white/5 border border-white/10 p-6 rounded-2xl flex items-center justify-between">
+                        <div>
+                            <h3 className="font-medium">Target Pomodoros</h3>
+                            <p className="text-sm text-gray-500">How many focus sessions per day?</p>
+                        </div>
+                        <div className="flex items-center gap-4">
+                            <button
+                                onClick={() => setDailyGoal(Math.max(1, dailyGoal - 1))}
+                                className="w-10 h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 transition-colors"
+                            >
+                                -
+                            </button>
+                            <span className="text-2xl font-bold font-mono w-10 text-center">{dailyGoal}</span>
+                            <button
+                                onClick={() => setDailyGoal(dailyGoal + 1)}
+                                className="w-10 h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 transition-colors"
+                            >
+                                +
+                            </button>
+                        </div>
                     </div>
-                </div>
-            </section>
+                </section>
+            )}
 
             {/* Notifications & Sounds */}
             <section className="space-y-6">
